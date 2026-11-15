@@ -8,7 +8,7 @@ const v=(p,i=0)=>Array.isArray(p)?p[i]||0:p?.[['x','y','z'][i]]||0;
 const wp=i=>WAYPOINTS[i], pos=p=>new THREE.Vector3(v(p),v(p,1),v(p,2));
 const site=new THREE.Vector3(0,0,-8.5);
 const laneW=[1,3,6,9,23],laneM=[22,4,7,10],laneE=[2,5,8,11,24];
-const entries=[12,13], holdA=[new THREE.Vector3(-8,0,-13),new THREE.Vector3(8,0,-13),new THREE.Vector3(-4,0,-5)];
+const entries=[12,13], holdA=[new THREE.Vector3(-8,0,-9.8),new THREE.Vector3(8,0,-9.8),new THREE.Vector3(-4,0,-5)];
 const holdR=[new THREE.Vector3(-9,0,-6),new THREE.Vector3(9,0,-6)];
 const holdM=new THREE.Vector3(0,0,1),entryH=[new THREE.Vector3(-4,0,-5),new THREE.Vector3(4,0,-5),new THREE.Vector3(0,0,-4)];
 const q=new THREE.Vector3(),d=new THREE.Vector3();
@@ -44,6 +44,9 @@ function at(a,p,r=1.5){return dist(a.pos,p)<r}
 function chooseHold(b,p){b.holdPos=p;pathTo(b,p)}
 function movePath(b,ctx,dt){
   const a=b.actor;if(!b.path.length)return;
+  if(b._px===undefined){b._px=a.pos.x;b._pz=a.pos.z;b._st=0}
+  const moved=Math.hypot(a.pos.x-b._px,a.pos.z-b._pz);
+  if(moved<0.05){b._st+=dt;if(b._st>2){b.pi++;b._st=0}}else{b._st=0;b._px=a.pos.x;b._pz=a.pos.z}
   while(b.pi<b.path.length&&dist(a.pos,wp(b.path[b.pi]))<.7)b.pi++;
   if(b.pi>=b.path.length)return;
   const p=wp(b.path[b.pi]);q.set(v(p)-v(a.pos),0,v(p,2)-v(a.pos,2));const l=q.length();
@@ -76,10 +79,8 @@ export function stepBots(bs,dt,now,ctx){
           else pathTo(b,ctx.bombPos);
         }else if(atk){
           if(b.role==='carrier'){
-            if(!b.lane)b.lane=1+Math.floor(ctx.rng()*3);
-            const lane=[laneW,laneM,laneE][b.lane-1],i=Math.min(lane.length-1,Math.floor(dist(a.pos,wp(lane[0]))/6));
-            const t=dist(a.pos,wp(lane[i]))<1.2?(dist(a.pos,wp(lane[lane.length-1]))<1.2?(entries[Math.floor(ctx.rng()*2)]):lane[Math.min(i+1,lane.length-1)]):lane[i];
-            pathTo(b,wp(t));if(at(a,site,2.4)&&ctx.phase==='live')ctx.tryPlant(a);
+            pathTo(b,wp(14));
+            if(at(a,site,3.2)&&ctx.phase==='live')ctx.tryPlant(a);
           }else if(b.role==='entry'){chooseHold(b,entryH[b.lane%3])}
           else chooseHold(b,entryH[2]);
         }else if(b.role==='anchor')chooseHold(b,holdA[b.lane%holdA.length]);
