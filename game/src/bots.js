@@ -80,7 +80,7 @@ export function stepBots(bs,dt,now,ctx){
         }else if(atk){
           if(b.role==='carrier'){
             pathTo(b,wp(14));
-            if(at(a,site,3.2)&&ctx.phase==='live')ctx.tryPlant(a);
+            if(at(a,site,4.2)&&ctx.phase==='live')ctx.tryPlant(a);
           }else if(b.role==='entry'){chooseHold(b,entryH[b.lane%3])}
           else chooseHold(b,entryH[2]);
         }else if(b.role==='anchor')chooseHold(b,holdA[b.lane%holdA.length]);
@@ -95,7 +95,8 @@ export function stepBots(bs,dt,now,ctx){
       a.crouch=z>12&&ctx.rng()<.3;
       let wx=0,wz=0;if(ctx.rng()<.16){const s=ctx.rng()<.5?-1:1;wx=s*.16}
       stepActor(a,wx,wz,dt,ctx.colliders,false);
-      if(now>=b.pauseUntil){if(now>=b.burstUntil){b.burstUntil=now+400+ctx.rng()*500;b.pauseUntil=b.burstUntil+300+ctx.rng()*400}else ctx.shoot(a,e)}
+      if(now<b.burstUntil)ctx.shoot(a,e);
+      else if(now>=b.pauseUntil){b.burstUntil=now+400+ctx.rng()*500;b.pauseUntil=b.burstUntil+300+ctx.rng()*400;ctx.shoot(a,e)}
     }else{
       a.crouch=false;
       if(ctx.phase==='planted'&&!side(a)?.startsWith('a')&&ctx.bombPos&&at(a,ctx.bombPos,1.6))ctx.tryDefuse(a);
