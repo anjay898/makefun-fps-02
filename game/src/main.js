@@ -299,7 +299,8 @@ function performShot(shooter) {
 function onKill(shooter, victim) {
   victim.diedLast = true;
   shooter.money = Math.min(ECONOMY.cap, shooter.money + ECONOMY.kill);
-  ui.killfeed(`${shooter.label} ▸ ${victim.label}`);
+  const weaponName = WEAPONS[shooter.cur].name || 'Cinder Knife';
+  ui.killfeed(`${shooter.label} [${weaponName}] ▸ ${victim.label}`);
   if (victim === player) ui.banner('YOU ARE DOWN', 'spectating this round', 2200);
   rebuildTargets();
 }
